@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulado SENAI-SP – Cursos Técnicos</title>
+<style>
+:root{
+  --bg:#f4f6fb; --card:#fff; --ink:#1b2333; --muted:#5d6985; --line:#dde3f0;
+  --brand:#0b5ed7; --brand-ink:#fff; --ok:#12805c; --okbg:#e3f5ee; --bad:#c62828; --badbg:#fdeaea;
+  --warn:#b26a00; --warnbg:#fff4de; --sel:#e8f0fe;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#10141d; --card:#181e2b; --ink:#e8ecf5; --muted:#9aa6c0; --line:#2a3347; --brand:#5b9bff; --brand-ink:#0b1020;
+  --ok:#4cd6a0; --okbg:#12332a; --bad:#ff7b7b; --badbg:#3a1a1d; --warn:#ffc266; --warnbg:#3a2d12; --sel:#1d2a45}
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+.wrap{max-width:980px;margin:0 auto;padding:16px}
+header.top{position:sticky;top:0;z-index:10;background:var(--card);border-bottom:1px solid var(--line)}
+header.top .in{max-width:980px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+header.top h1{font-size:16px;margin:0}
+#timer{font-variant-numeric:tabular-nums;font-weight:700;font-size:20px;padding:4px 12px;border-radius:8px;background:var(--sel)}
+#timer.low{background:var(--badbg);color:var(--bad)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin:16px 0}
+h2{margin:0 0 8px;font-size:22px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.chip{background:var(--sel);border-radius:999px;padding:4px 12px;font-size:14px}
+button{font:inherit;cursor:pointer}
+.btn{border:0;border-radius:10px;padding:10px 18px;font-weight:600;background:var(--brand);color:var(--brand-ink)}
+.btn.sec{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.big{padding:14px 28px;font-size:17px}
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:14px;margin-bottom:10px}
+.tag{font-weight:700;color:var(--brand)}
+.texto{background:var(--bg);border-left:4px solid var(--brand);padding:12px 16px;border-radius:8px;margin:0 0 14px;font-size:15.5px}
+.texto table{border-collapse:collapse;margin-top:6px}
+.texto td,.texto th{border:1px solid var(--line);padding:4px 12px;text-align:center}
+.enun{font-size:17px;font-weight:600;margin:0 0 14px}
+.alt{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:var(--card);color:var(--ink);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;margin:8px 0}
+.alt:hover{border-color:var(--brand)}
+.alt.sel{background:var(--sel);border-color:var(--brand)}
+.alt .l{flex:0 0 28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:700;border:1.5px solid var(--line);font-size:14px}
+.alt.sel .l{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.alt.right{background:var(--okbg);border-color:var(--ok)}
+.alt.right .l{background:var(--ok);color:var(--brand-ink);border-color:var(--ok)}
+.alt.wrong{background:var(--badbg);border-color:var(--bad)}
+.alt.wrong .l{background:var(--bad);color:var(--brand-ink);border-color:var(--bad)}
+.alt{cursor:pointer}
+.review .alt{cursor:default}
+.nav{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:6px}
+.grid button{height:38px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:600;position:relative}
+.grid button.done{background:var(--sel);border-color:var(--brand)}
+.grid button.cur{outline:2px solid var(--brand);outline-offset:1px}
+.grid button.flag::after{content:"";position:absolute;top:3px;right:3px;width:8px;height:8px;border-radius:50%;background:var(--warn)}
+.grid button.ok{background:var(--okbg);border-color:var(--ok)}
+.grid button.no{background:var(--badbg);border-color:var(--bad)}
+.grid button.blank{background:var(--warnbg);border-color:var(--warn)}
+.secrow{margin:12px 0 4px;font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:10px}
+.score{display:flex;gap:16px;flex-wrap:wrap}
+.score .box{flex:1 1 140px;background:var(--bg);border-radius:12px;padding:14px;text-align:center}
+.score .n{font-size:30px;font-weight:800}
+.score .s{font-size:13px;color:var(--muted)}
+table.gab{border-collapse:collapse;width:100%;font-size:14px}
+table.gab th,table.gab td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:center}
+table.gab td.ok{color:var(--ok);font-weight:700}
+table.gab td.no{color:var(--bad);font-weight:700}
+table.gab td.bl{color:var(--warn);font-weight:700}
+.gabcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.expl{background:var(--bg);border-radius:8px;padding:10px 14px;margin-top:10px;font-size:15px}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 4px}
+.filters .btn.on{background:var(--brand);color:var(--brand-ink)}
+.hidden{display:none!important}
+.review .item{border-top:1px solid var(--line);padding-top:16px;margin-top:16px}
+.dist{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.dist span{background:var(--sel);padding:3px 10px;border-radius:8px;font-size:14px}
+.hint{color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="in">
+    <h1>Simulado SENAI-SP · Técnico Diurno 2027</h1>
+    <div id="timer" class="hidden">2:45:00</div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- INÍCIO -->
+<section id="start" class="card">
+  <h2>Simulado – Processo Seletivo dos Cursos Técnicos</h2>
+  <p>Segue o formato do edital do 1º semestre de 2027: prova teórica digital de 60 questões de múltipla escolha, em nível de conclusão do Ensino Fundamental II, com 20 questões de cada disciplina. As questões são originais e seguem o Programa da Prova e o estilo da prova de exemplo.</p>
+  <div class="chips">
+    <span class="chip"><b>60</b> questões de múltipla escolha</span>
+    <span class="chip"><b>5</b> alternativas (A a E)</span>
+    <span class="chip"><b>2h45min</b> para resolver</span>
+  </div>
+  <table class="gab" style="max-width:720px">
+    <tr><th style="text-align:left">Bloco</th><th>Questões</th><th>Conteúdo (Programa da Prova)</th></tr>
+    <tr><td style="text-align:left">Língua Portuguesa</td><td>1–20</td><td style="text-align:left">Interpretação de textos, ortografia e acentuação, pontuação, fonética, morfossintaxe (classes, concordância, termos e orações, vozes, pronomes, crase), significação das palavras e figuras</td></tr>
+    <tr><td style="text-align:left">Matemática</td><td>21–40</td><td style="text-align:left">Conjuntos, números (N, Z, Q, R), razão e proporção, porcentagem, cálculo algébrico, equações e inequações, sistemas, medidas, geometria plana, Pitágoras e trigonometria, estatística</td></tr>
+    <tr><td style="text-align:left">Ciências</td><td>41–60</td><td style="text-align:left">Matéria e misturas, ligações, ácidos e bases, energia e calor, mecânica, eletricidade, luz e som, ecologia, corpo humano, higiene, evolução e Astronomia</td></tr>
+  </table>
+  <ul>
+    <li>Faça como na prova real: sem consulta, sem calculadora e sem celular. Use papel de rascunho.</li>
+    <li>Você pode navegar entre as questões, mudar respostas e marcar questões para revisar.</li>
+    <li>O gabarito, a nota e a explicação de cada questão aparecem só <b>ao finalizar</b>. Como no edital, cada disciplina vale até 100 pontos e a nota final é a média das três.</li>
+    <li>Cada vez que você inicia, a posição das alternativas corretas é sorteada de forma equilibrada (12 questões para cada letra, de A a E), então não dá para decorar o padrão.</li>
+    <li>Atalhos: teclas <b>A–E</b> marcam a resposta e <b>←/→</b> navegam.</li>
+  </ul>
+  <p class="hint">Se fechar a página, o progresso é perdido. Use um computador ou celular com a tela ligada durante todo o tempo.</p>
+  <button class="btn big" id="btnStart">Iniciar simulado</button>
+</section>
+
+<!-- PROVA -->
+<section id="exam" class="hidden">
+  <div class="card">
+    <div class="qhead">
+      <span><span class="tag" id="qBloco"></span> · Questão <b id="qNum"></b> de 60</span>
+      <span id="qAnswered"></span>
+    </div>
+    <div id="qTexto" class="texto hidden"></div>
+    <p class="enun" id="qEnun"></p>
+    <div id="qAlts"></div>
+    <div class="nav">
+      <button class="btn sec" id="btnPrev">← Anterior</button>
+      <button class="btn sec" id="btnFlag">⚑ Marcar para revisar</button>
+      <button class="btn sec" id="btnClear">Limpar resposta</button>
+      <button class="btn" id="btnNext">Próxima →</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="secrow" style="margin-top:0">Língua Portuguesa</div><div class="grid" id="g0"></div>
+    <div class="secrow">Matemática</div><div class="grid" id="g1"></div>
+    <div class="secrow">Ciências</div><div class="grid" id="g2"></div>
+    <div class="legend">
+      <span>🟦 respondida</span><span>🟠 marcada para revisar</span><span>⬜ em branco</span>
+    </div>
+    <div style="margin-top:16px;text-align:right">
+      <button class="btn" id="btnFinish">Finalizar simulado</button>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTADO -->
+<section id="result" class="hidden">
+  <div class="card">
+    <h2>Resultado</h2>
+    <div class="score" id="scoreBoxes"></div>
+    <p class="hint" id="timeUsed"></p>
+  </div>
+
+  <div class="card">
+    <h2>Gabarito</h2>
+    <div class="dist" id="dist"></div>
+    <div class="gabcols" id="gabCols" style="margin-top:12px"></div>
+    <p class="hint">✓ acertou · ✗ errou · – em branco</p>
+  </div>
+
+  <div class="card review">
+    <h2>Correção comentada</h2>
+    <div class="filters">
+      <button class="btn sec on" data-f="all">Todas</button>
+      <button class="btn sec" data-f="no">Erradas</button>
+      <button class="btn sec" data-f="bl">Em branco</button>
+      <button class="btn sec" data-f="s0">Português</button>
+      <button class="btn sec" data-f="s1">Matemática</button>
+      <button class="btn sec" data-f="s2">Ciências</button>
+    </div>
+    <div id="reviewList"></div>
+  </div>
+
+  <div style="text-align:center;margin:20px 0 40px">
+    <button class="btn big" id="btnAgain">Fazer novo simulado</button>
+  </div>
+</section>
+
+</main>
+
+<script>
+/* ===== BANCO DE QUESTÕES =====
+ s: 0 = Português, 1 = Matemática, 2 = Ciências
+ c: alternativa correta · w: quatro alternativas erradas · e: explicação */
+
+const T_CIDA = "Dona Cida acordava antes do sol. Acendia o fogão a lenha, coava o café e, só então, acordava a casa inteira com o cheiro. Naquela manhã, porém, o fogão ficou apagado, e o silêncio da cozinha foi o primeiro aviso de que algo havia mudado.";
+const T_SONO = "Muitos jovens trocam o sono por telas. O resultado aparece na sala de aula: cansaço, falta de atenção e notas mais baixas. Dormir bem não é preguiça; é uma necessidade do cérebro, que consolida durante a noite o que aprendeu durante o dia.";
+const T_CASA = "A casa da avó ficava no alto da ladeira: paredes caiadas de branco, janelas azuis e um quintal onde o cheiro de capim-santo se misturava ao de terra molhada.";
+
+const BANK = [
+/* ================= LÍNGUA PORTUGUESA ================= */
+{s:0,t:T_CIDA,q:"No texto, a palavra “porém” introduz uma ideia de:",
+ c:"oposição ao hábito descrito anteriormente",
+ w:["conclusão do que foi dito antes","causa do silêncio na cozinha","adição de mais um costume da personagem","explicação sobre o cheiro do café"],
+ e:"Até ali, o texto mostra a rotina de Dona Cida (acordar antes do sol, acender o fogão). “Porém” é conjunção adversativa e marca a quebra dessa rotina: naquela manhã o fogão ficou apagado."},
+{s:0,t:T_CIDA,q:"Na frase “o silêncio da cozinha foi o primeiro aviso de que algo havia mudado”, o trecho contribui para o texto ao:",
+ c:"sugerir, sem dizer diretamente, que a rotina da casa foi interrompida",
+ w:["descrever a decoração e os móveis da cozinha","informar que Dona Cida viajou na véspera","explicar como se faz o café com fogão a lenha","apresentar a opinião do narrador sobre o fogão a lenha"],
+ e:"O narrador não diz o que aconteceu: apenas sugere, pelo silêncio e pelo fogão apagado, que algo fugiu do normal. Os demais itens não têm apoio no texto."},
+{s:0,t:T_SONO,q:"O argumento central do texto é que:",
+ c:"dormir bem é necessidade para o aprendizado, e não sinal de preguiça",
+ w:["as telas melhoram o rendimento escolar dos jovens","o cansaço dos jovens não interfere nas notas","o cérebro só aprende durante o horário das aulas","os jovens devem estudar durante a madrugada"],
+ e:"A tese está em “Dormir bem não é preguiça; é uma necessidade do cérebro”, justificada pelo fato de o cérebro consolidar o aprendizado durante a noite."},
+{s:0,t:T_SONO,q:"O ponto e vírgula, em “Dormir bem não é preguiça; é uma necessidade do cérebro”, foi empregado para:",
+ c:"separar duas ideias relacionadas, que se complementam e se contrapõem",
+ w:["indicar o fim do texto","introduzir a fala de uma personagem","separar os itens de uma lista de compras","marcar que a frase é uma pergunta"],
+ e:"O ponto e vírgula marca uma pausa maior que a da vírgula, mantendo ligadas duas ideias: “não é preguiça” e “é uma necessidade”."},
+{s:0,t:T_CASA,q:"O texto é predominantemente descritivo porque:",
+ c:"apresenta características do lugar com adjetivos e referências aos sentidos",
+ w:["narra uma sequência de ações vividas por uma personagem","defende um ponto de vista por meio de argumentos","ensina, passo a passo, como construir uma casa","expõe uma opinião sobre moradias em ladeiras"],
+ e:"Há adjetivos e locuções (“caiadas de branco”, “janelas azuis”) e imagens ligadas ao olfato (“cheiro de capim-santo”). Isso caracteriza a descrição."},
+{s:0,q:"Assinale a alternativa em que todas as palavras estão grafadas corretamente.",
+ c:"pesquisa, beleza, empresa",
+ w:["pesquiza, beleza, empreza","pesquisa, belesa, empresa","pesquiza, belesa, empreza","pesquisa, beleza, empreza"],
+ e:"Grafias corretas: pesquisa (com “s”), beleza (sufixo -eza) e empresa (com “s”)."},
+{s:0,q:"Assinale a alternativa em que todas as palavras são proparoxítonas.",
+ c:"lâmpada, médico, página",
+ w:["café, você, também","fácil, útil, açúcar","avó, jacaré, país","relógio, família, pátria"],
+ e:"Proparoxítonas têm a antepenúltima sílaba tônica: lâm-pa-da, mé-di-co, pá-gi-na. As demais alternativas trazem oxítonas ou paroxítonas."},
+{s:0,q:"Assinale a palavra que apresenta encontro consonantal.",
+ c:"prato",
+ w:["chuva","carro","queijo","passa"],
+ e:"Encontro consonantal são duas consoantes pronunciadas juntas em sílaba: “pr” em prato. Em chuva (ch), carro (rr) e passa (ss) há dígrafos, que representam um único som."},
+{s:0,q:"A separação silábica correta da palavra “ideia” é:",
+ c:"i-dei-a",
+ w:["i-de-ia","ide-ia","id-ei-a","i-de-i-a"],
+ e:"“Ei” é um ditongo e não se separa; “e-ia” não forma outro encontro. Resultado: i-dei-a (três sílabas)."},
+{s:0,q:"Em “Ana entregou o trabalho ao professor, que o corrigiu”, a palavra “que” é:",
+ c:"pronome relativo, que retoma “professor”",
+ w:["conjunção integrante, que introduz o complemento de “entregou”","advérbio de intensidade, que modifica “corrigiu”","artigo definido, que acompanha “professor”","preposição, que liga “trabalho” a “professor”"],
+ e:"“Que” substitui “professor” e inicia uma oração que o caracteriza (“que o corrigiu”). É pronome relativo."},
+{s:0,q:"Assinale a frase escrita de acordo com a norma-padrão quanto à concordância.",
+ c:"As alunas ficaram meio nervosas antes da prova.",
+ w:["As alunas ficaram meias nervosas antes da prova.","Seguem anexo os documentos solicitados.","Fazem três meses que ela estuda inglês.","Haviam muitos candidatos na fila de entrada."],
+ e:"“Meio”, com sentido de “um pouco”, é advérbio e não varia. Corrigindo as demais: “seguem anexos”, “faz três meses” e “havia muitos candidatos”."},
+{s:0,q:"Em “Os alunos entregaram a redação ao professor”, o termo “ao professor” funciona como:",
+ c:"objeto indireto",
+ w:["objeto direto","sujeito","adjunto adverbial de lugar","predicativo do sujeito"],
+ e:"“Entregar” pede um complemento sem preposição (a redação: objeto direto) e outro com preposição (ao professor: objeto indireto)."},
+{s:0,q:"Em “A prova estava difícil”, o predicado é:",
+ c:"nominal, pois o verbo de ligação une o sujeito a uma característica",
+ w:["verbal, pois “estava” indica uma ação","verbo-nominal, pois há verbo e adjetivo","inexistente, pois a oração não tem sujeito","verbal, pois “difícil” é o núcleo verbal"],
+ e:"“Estava” é verbo de ligação e “difícil” é o predicativo do sujeito (núcleo do predicado). Predicado nominal."},
+{s:0,q:"No período “Estudei bastante, mas não passei no teste”, a oração introduzida por “mas” é:",
+ c:"coordenada sindética adversativa",
+ w:["coordenada sindética aditiva","coordenada assindética","subordinada adverbial causal","subordinada substantiva objetiva direta"],
+ e:"As orações têm sentido independente e estão ligadas por “mas”, que indica oposição: coordenada sindética adversativa."},
+{s:0,q:"Transformando “Os fiscais recolheram as provas” para a voz passiva, obtém-se:",
+ c:"As provas foram recolhidas pelos fiscais.",
+ w:["As provas recolheram os fiscais.","Os fiscais foram recolhidos pelas provas.","As provas serão recolhidas pelos fiscais.","Os fiscais se recolheram às provas."],
+ e:"Na passiva, o objeto direto vira sujeito e o verbo fica na mesma forma de tempo (pretérito): “foram recolhidas”. O agente vem com “por/pelos”."},
+{s:0,q:"Assinale a frase com a colocação pronominal de acordo com a norma-padrão.",
+ c:"Ninguém me avisou sobre a mudança do horário.",
+ w:["Ninguém avisou-me sobre a mudança do horário.","Me disseram que a prova foi adiada.","Nunca disse-lhe a verdade.","Ele não deu-me o recado."],
+ e:"Palavras negativas (nunca, não, ninguém) atraem o pronome para antes do verbo (próclise). Também não se inicia frase com pronome oblíquo."},
+{s:0,q:"Em qual frase o acento grave indicativo de crase está empregado corretamente?",
+ c:"Entreguei o convite à diretora da escola.",
+ w:["Cheguei à pé até a escola.","Estamos dispostos à ajudar.","Ela viaja à partir de segunda.","Assisti à um filme ontem."],
+ e:"Há crase em “à diretora” (a preposição + o artigo a). Não há crase antes de verbo (ajudar, partir), de palavra masculina (pé, um filme)."},
+{s:0,q:"Assinale a frase em que o parônimo está empregado corretamente.",
+ c:"O juiz absolveu o réu por falta de provas.",
+ w:["O juiz absorveu o réu por falta de provas.","A esponja absolveu toda a água derramada.","O perigo eminente assustou os moradores.","Ele agiu com descrição ao guardar o segredo."],
+ e:"Absolver = declarar inocente; absorver = sugar. Iminente = prestes a acontecer; eminente = ilustre. Discrição = reserva; descrição = ato de descrever."},
+{s:0,q:"O antônimo de “prolixo” é:",
+ c:"conciso",
+ w:["extenso","detalhado","confuso","demorado"],
+ e:"Prolixo é aquele que se alonga demais. O oposto é conciso, que diz o essencial com poucas palavras."},
+{s:0,q:"Em “Estou morrendo de fome”, há uma figura de linguagem chamada:",
+ c:"hipérbole",
+ w:["metáfora","ironia","eufemismo","antítese"],
+ e:"A hipérbole é o exagero intencional para dar ênfase. Ninguém está de fato morrendo; quer-se dizer que a fome é muito grande."},
+
+/* ================= MATEMÁTICA ================= */
+{s:1,q:"Em uma turma de 30 alunos, 18 praticam futebol, 15 praticam vôlei e 5 não praticam nenhum dos dois esportes. Quantos alunos praticam os dois esportes?",
+ c:"8",
+ w:["5","6","10","12"],
+ e:"Praticam pelo menos um esporte: 30 − 5 = 25. Soma: 18 + 15 = 33. A diferença 33 − 25 = 8 é a intersecção."},
+{s:1,q:"Duas luzes piscam: uma a cada 6 segundos e outra a cada 8 segundos. Se acabaram de piscar juntas, após quantos segundos piscarão juntas novamente?",
+ c:"24 segundos",
+ w:["12 segundos","14 segundos","48 segundos","2 segundos"],
+ e:"Calcula-se o MMC de 6 e 8. Múltiplos de 6: 6, 12, 18, 24. Múltiplos de 8: 8, 16, 24. MMC = 24."},
+{s:1,q:"A temperatura de uma cidade era de −3 °C às 6h e subiu 11 °C até o meio-dia. No fim da tarde, caiu 5 °C. Qual foi a temperatura final?",
+ c:"3 °C",
+ w:["−5 °C","−3 °C","8 °C","13 °C"],
+ e:"−3 + 11 = 8 °C ao meio-dia. Depois, 8 − 5 = 3 °C."},
+{s:1,q:"Uma receita pede 3/4 de xícara de açúcar. Para preparar apenas 1/3 da receita, a quantidade de açúcar necessária é:",
+ c:"1/4 de xícara",
+ w:["1/3 de xícara","9/4 de xícara","4/9 de xícara","1/12 de xícara"],
+ e:"1/3 de 3/4 = 1/3 × 3/4 = 3/12 = 1/4."},
+{s:1,q:"Uma sala retangular mede 6 m por 4,5 m. Ela será coberta com cerâmicas quadradas de 0,5 m de lado. Quantas peças serão necessárias, sem contar perdas?",
+ c:"108",
+ w:["27","54","72","216"],
+ e:"Área da sala: 6 × 4,5 = 27 m². Área de cada peça: 0,5 × 0,5 = 0,25 m². Número de peças: 27 ÷ 0,25 = 108."},
+{s:1,q:"Qual dos números abaixo é irracional?",
+ c:"√7",
+ w:["√49","0,444...","22/7","−5/3"],
+ e:"√49 = 7 (inteiro); 0,444... é dízima periódica e 22/7 e −5/3 são frações: todos racionais. √7 tem infinitas casas decimais sem período: irracional."},
+{s:1,q:"Cinco pedreiros constroem um muro em 12 dias. Mantendo o mesmo ritmo, em quantos dias 10 pedreiros construiriam o mesmo muro?",
+ c:"6 dias",
+ w:["3 dias","8 dias","10 dias","24 dias"],
+ e:"Grandezas inversamente proporcionais: dobrando o número de pedreiros, o tempo cai pela metade. 12 ÷ 2 = 6 dias."},
+{s:1,q:"O preço de um tênis de R$ 200,00 sofreu aumento de 15%. Em seguida, sobre o novo preço, foi dado um desconto de 10%. O preço final é:",
+ c:"R$ 207,00",
+ w:["R$ 195,00","R$ 210,00","R$ 220,00","R$ 230,00"],
+ e:"200 × 1,15 = 230. Depois, 230 × 0,90 = 207. (Aumento e desconto percentuais não se anulam.)"},
+{s:1,q:"A forma fatorada da expressão x² − 49 é:",
+ c:"(x + 7)(x − 7)",
+ w:["(x − 7)²","(x + 7)²","x(x − 49)","(x − 49)(x + 1)"],
+ e:"É a diferença de dois quadrados: a² − b² = (a + b)(a − b), com a = x e b = 7."},
+{s:1,q:"Pedro tem o triplo da idade de Ana. Daqui a 5 anos, a soma das idades dos dois será 50 anos. A idade atual de Pedro é:",
+ c:"30 anos",
+ w:["10 anos","25 anos","35 anos","40 anos"],
+ e:"Seja Ana = a e Pedro = 3a. Em 5 anos: (a + 5) + (3a + 5) = 50 → 4a = 40 → a = 10. Pedro tem 3 × 10 = 30."},
+{s:1,q:"O maior número inteiro x que satisfaz a inequação 2x − 7 < 9 é:",
+ c:"7",
+ w:["6","8","9","16"],
+ e:"2x < 16 → x < 8. Como x deve ser inteiro e menor que 8, o maior valor é 7."},
+{s:1,q:"Em uma lanchonete, 2 sucos e 3 salgados custam R$ 21,00, e 1 suco e 2 salgados custam R$ 12,00. O preço de um suco é:",
+ c:"R$ 6,00",
+ w:["R$ 3,00","R$ 4,00","R$ 5,00","R$ 8,00"],
+ e:"Da segunda: s = 12 − 2g. Na primeira: 2(12 − 2g) + 3g = 21 → 24 − g = 21 → g = 3. Então s = 12 − 6 = 6."},
+{s:1,q:"As soluções da equação x² − 5x = 0 são:",
+ c:"0 e 5",
+ w:["somente 5","0 e −5","5 e −5","1 e 5"],
+ e:"Fatorando: x(x − 5) = 0. Então x = 0 ou x − 5 = 0, isto é, x = 5."},
+{s:1,q:"Uma garrafa de refrigerante tem 1,5 L. Quantas garrafas completas podem ser enchidas com 60 000 mL do refrigerante?",
+ c:"40",
+ w:["4","9","90","400"],
+ e:"60 000 mL = 60 L. Dividindo: 60 ÷ 1,5 = 40 garrafas."},
+{s:1,q:"Um filme começou às 19h45min e terminou às 22h10min. A duração dele foi de:",
+ c:"2h25min",
+ w:["2h15min","2h35min","2h55min","3h25min"],
+ e:"Das 19h45 às 20h = 15 min; das 20h às 22h = 2h; das 22h às 22h10 = 10 min. Total: 15 + 10 = 25 min e 2 h."},
+{s:1,q:"Duas retas paralelas são cortadas por uma transversal. Um dos ângulos colaterais internos mede 70°. O outro ângulo colateral interno mede:",
+ c:"110°",
+ w:["20°","70°","90°","290°"],
+ e:"Ângulos colaterais internos entre paralelas são suplementares (somam 180°). 180° − 70° = 110°."},
+{s:1,q:"Três retas paralelas cortam duas transversais. Em uma delas, os segmentos determinados medem 4 cm e 6 cm. Na outra, o primeiro segmento mede 10 cm. O segundo segmento mede:",
+ c:"15 cm",
+ w:["12 cm","14 cm","16 cm","20 cm"],
+ e:"Pelo Teorema de Tales: 4/6 = 10/x → 4x = 60 → x = 15 cm."},
+{s:1,q:"Uma escada de 6 m está apoiada em uma parede formando 30° com o chão. Sabendo que sen 30° = 1/2, a altura que a escada alcança na parede é:",
+ c:"3 m",
+ w:["2 m","4 m","6 m","12 m"],
+ e:"Seno = cateto oposto ÷ hipotenusa. 1/2 = h/6 → h = 3 m."},
+{s:1,q:"A distância média da Terra ao Sol é de, aproximadamente, 150 000 000 km. Em notação científica, esse valor é escrito como:",
+ c:"1,5 × 10⁸ km",
+ w:["1,5 × 10⁷ km","1,5 × 10⁹ km","15 × 10⁹ km","1,5 × 10⁶ km"],
+ e:"Em notação científica, o primeiro fator fica entre 1 e 10. 150 000 000 = 1,5 × 100 000 000 = 1,5 × 10⁸."},
+{s:1,q:"As idades de cinco jogadores de um time são: 18, 20, 20, 22 e 30 anos. A média e a mediana dessas idades são, respectivamente:",
+ c:"22 e 20",
+ w:["20 e 22","22 e 22","20 e 20","24 e 20"],
+ e:"Média: (18 + 20 + 20 + 22 + 30) ÷ 5 = 110 ÷ 5 = 22. Mediana: valor central dos dados em ordem = 20."},
+
+/* ================= CIÊNCIAS ================= */
+{s:2,q:"Qual das substâncias abaixo é uma substância composta?",
+ c:"água (H₂O)",
+ w:["gás oxigênio (O₂)","ferro (Fe)","ozônio (O₃)","grafite (C)"],
+ e:"Substância composta é formada por átomos de elementos diferentes. Na água há hidrogênio e oxigênio. As demais são substâncias simples."},
+{s:2,q:"Uma bola de naftalina diminui de tamanho dentro de um armário, sem passar pelo estado líquido. Essa mudança de estado físico é chamada de:",
+ c:"sublimação",
+ w:["fusão","condensação","solidificação","ebulição"],
+ e:"A passagem direta do estado sólido para o gasoso é a sublimação."},
+{s:2,q:"Para separar o sal dissolvido na água, aproveitando também a água, o processo mais adequado é a:",
+ c:"destilação simples",
+ w:["filtração","decantação","catação","separação magnética"],
+ e:"Em uma solução (mistura homogênea) de sal e água, a água evapora e é condensada em outro recipiente, ficando o sal. Isso é a destilação simples."},
+{s:2,q:"O suco de limão apresenta pH próximo de 2. Portanto, ele é:",
+ c:"ácido, pois o pH é menor que 7",
+ w:["básico, pois o pH é menor que 7","neutro, pois o pH é próximo de zero","básico, pois tem sabor azedo","neutro, pois é uma mistura natural"],
+ e:"pH menor que 7 indica meio ácido; igual a 7, neutro; maior que 7, básico (alcalino)."},
+{s:2,q:"Qual das substâncias abaixo é formada por ligações moleculares (covalentes)?",
+ c:"gás carbônico (CO₂)",
+ w:["cloreto de sódio (NaCl)","óxido de magnésio (MgO)","brometo de potássio (KBr)","cloreto de cálcio (CaCl₂)"],
+ e:"Ligação molecular ocorre entre ametais, com compartilhamento de elétrons (carbono e oxigênio no CO₂). As demais são compostos iônicos (metal + ametal)."},
+{s:2,q:"Em uma usina hidrelétrica, a sequência correta de transformações de energia é:",
+ c:"potencial gravitacional → cinética → elétrica",
+ w:["elétrica → cinética → potencial gravitacional","térmica → química → elétrica","cinética → térmica → potencial gravitacional","química → elétrica → potencial gravitacional"],
+ e:"A água armazenada em altura possui energia potencial. Ao cair, ela se transforma em cinética, que gira a turbina e gera energia elétrica."},
+{s:2,q:"A temperatura de 50 °C corresponde, na escala Kelvin, a:",
+ c:"323 K",
+ w:["223 K","273 K","373 K","50 K"],
+ e:"K = °C + 273. Então 50 + 273 = 323 K."},
+{s:2,q:"Em uma geladeira, o congelador fica na parte superior porque:",
+ c:"o ar frio, mais denso, desce e forma correntes de convecção",
+ w:["o ar frio, menos denso, sobe para o fundo","o frio se propaga por condução pelos alimentos","o gelo flutua e leva o frio para baixo","o calor sobe por irradiação e esfria os alimentos"],
+ e:"O ar frio é mais denso, desce, e o ar mais quente sobe para ser resfriado: um ciclo chamado convecção."},
+{s:2,q:"Um ciclista percorre 36 km em 2 h, com velocidade constante. Em quanto tempo ele percorrerá 54 km nas mesmas condições?",
+ c:"3 h",
+ w:["2 h","2 h 30 min","3 h 30 min","4 h"],
+ e:"Velocidade = 36 ÷ 2 = 18 km/h. Tempo = 54 ÷ 18 = 3 h."},
+{s:2,q:"Para erguer uma pedra de 600 N, uma pessoa usa uma alavanca em que o braço da força aplicada é 3 vezes maior que o braço da resistência. A força mínima para equilibrar a pedra é de:",
+ c:"200 N",
+ w:["100 N","300 N","600 N","1 800 N"],
+ e:"No equilíbrio: F × (3d) = 600 × d → F = 600 ÷ 3 = 200 N."},
+{s:2,q:"Uma faca bem afiada corta melhor que uma faca cega, aplicando-se a mesma força, porque:",
+ c:"a área de contato é menor, o que aumenta a pressão exercida",
+ w:["a área de contato é maior, o que aumenta a pressão exercida","a faca afiada tem mais massa que a faca cega","a pressão não depende da área de contato","a faca afiada produz menos atrito com o ar"],
+ e:"Pressão = força ÷ área. Com a mesma força, quanto menor a área de contato (fio da lâmina), maior a pressão e mais fácil o corte."},
+{s:2,q:"Um navio de aço, muito pesado, flutua na água porque:",
+ c:"o empuxo exercido pela água equilibra o peso do navio",
+ w:["o aço é sempre menos denso que a água","não existe força gravitacional no mar","o empuxo é nulo em líquidos","a pressão atmosférica sustenta o navio"],
+ e:"Pelo Princípio de Arquimedes, o líquido exerce empuxo igual ao peso do volume deslocado. Como o navio é oco, desloca muita água e o empuxo equilibra o peso."},
+{s:2,q:"Os fios elétricos são feitos de cobre e revestidos de plástico porque:",
+ c:"o cobre é bom condutor, e o plástico é isolante, evitando choques",
+ w:["o cobre é isolante, e o plástico é condutor","ambos são condutores e, juntos, conduzem melhor","o plástico gera a corrente elétrica","o cobre impede a passagem de calor"],
+ e:"Condutores deixam a corrente passar com facilidade (metais, como o cobre). Isolantes (plástico, borracha) impedem, protegendo quem toca no fio."},
+{s:2,q:"Uma camiseta parece vermelha sob a luz branca porque ela:",
+ c:"reflete a luz vermelha e absorve as demais cores",
+ w:["absorve a luz vermelha e reflete as demais","emite luz vermelha própria","refrata toda a luz que recebe","absorve toda a luz que recebe"],
+ e:"A luz branca contém todas as cores. A cor que vemos num objeto é a que ele reflete; as outras são absorvidas."},
+{s:2,q:"O som não se propaga:",
+ c:"no vácuo",
+ w:["na água","no ar","em sólidos","em gases"],
+ e:"O som é uma onda mecânica e precisa de um meio material (sólido, líquido ou gasoso). No vácuo, não há partículas para vibrar."},
+{s:2,q:"Em uma cadeia alimentar, a energia que passa de um nível trófico para o seguinte:",
+ c:"diminui, pois parte é perdida como calor e usada nos processos vitais",
+ w:["aumenta, pois os animais maiores têm mais energia","permanece igual, pois a energia é reciclada","é produzida pelos decompositores","é totalmente transferida aos consumidores"],
+ e:"Em cada passagem, parte da energia é usada pelo ser vivo (respiração, movimento) e dissipada como calor. Por isso as cadeias têm poucos níveis."},
+{s:2,q:"Nos alvéolos pulmonares ocorre:",
+ c:"troca gasosa: entrada de oxigênio no sangue e saída de gás carbônico",
+ w:["digestão dos alimentos que respiramos","filtração do sangue para formar a urina","produção da bile que ajuda a digerir gorduras","absorção de nutrientes dos alimentos"],
+ e:"Os alvéolos são pequenos sacos cercados por capilares. O O₂ passa para o sangue e o CO₂ sai do sangue para ser eliminado na expiração."},
+{s:2,q:"Uma medida eficaz de prevenção de verminoses é:",
+ c:"lavar as mãos e os alimentos e ter acesso à água tratada e ao esgoto",
+ w:["tomar banho apenas uma vez por semana","comer alimentos crus sem lavar","beber água de rios sem tratamento","andar descalço em locais com esgoto"],
+ e:"Muitos parasitas são transmitidos por água, alimentos contaminados ou por contato com solo contaminado. Higiene e saneamento básico são as melhores prevenções."},
+{s:2,q:"Segundo a teoria da seleção natural de Darwin, o surgimento de bactérias resistentes a antibióticos acontece porque:",
+ c:"bactérias com variações que resistem ao remédio sobrevivem e se reproduzem mais",
+ w:["as bactérias decidem se adaptar ao remédio","o antibiótico cria a resistência nas bactérias","todas as bactérias ficam resistentes ao mesmo tempo","as bactérias resistentes nascem apenas após o uso do remédio"],
+ e:"Há variação entre indivíduos. Os que têm características favoráveis (resistência) sobrevivem ao ambiente (antibiótico) e deixam mais descendentes."},
+{s:2,q:"As fases da Lua acontecem porque:",
+ c:"da Terra vemos diferentes porções da face iluminada da Lua, conforme ela orbita a Terra",
+ w:["a sombra da Terra cobre partes diferentes da Lua","a Lua produz luz própria que varia ao longo do mês","as nuvens escondem parte da Lua durante a noite","a Lua muda de tamanho a cada semana"],
+ e:"A Lua tem sempre metade iluminada pelo Sol. Ao girar em torno da Terra, vemos mais ou menos dessa metade iluminada: nova, crescente, cheia e minguante."}
+];
+
+const BLOCOS = ["Língua Portuguesa","Matemática","Ciências"];
+const LETRAS = ["A","B","C","D","E"];
+const TOTAL_SEC = 2*3600 + 45*60;
+
+/* ===== UTILIDADES ===== */
+const $ = id => document.getElementById(id);
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function maxRun(a){ let m=1,r=1; for(let i=1;i<a.length;i++){ r = a[i]===a[i-1] ? r+1 : 1; if(r>m)m=r; } return m; }
+
+/* Sequência de letras corretas equilibrada: 12 de cada (A–E), sem mais de 2 iguais seguidas,
+   e cada bloco de 20 com 2 a 6 de cada letra */
+function sequenciaGabarito(n){
+  const per = n/5;
+  while(true){
+    let base=[]; for(let l=0;l<5;l++) for(let k=0;k<per;k++) base.push(l);
+    const seq = shuffle(base);
+    if(maxRun(seq)>2) continue;
+    let ok=true;
+    for(let b=0;b<n;b+=20){
+      const cnt=[0,0,0,0,0]; seq.slice(b,b+20).forEach(x=>cnt[x]++);
+      if(cnt.some(x=>x<2||x>6)) ok=false;
+    }
+    if(ok) return seq;
+  }
+}
+
+let prova=[], resp=[], flags=[], cur=0, endAt=0, startAt=0, tick=null, finished=false;
+
+function montarProva(){
+  const blocos=[0,1,2].map(s=>shuffle(BANK.filter(q=>q.s===s)));
+  const lista=[].concat(...blocos);
+  const seq=sequenciaGabarito(lista.length);
+  prova = lista.map((q,i)=>{
+    const pos=seq[i];
+    const alts=shuffle(q.w);
+    alts.splice(pos,0,q.c);
+    return {s:q.s,t:q.t||"",q:q.q,alts,correta:pos,e:q.e};
+  });
+  resp = new Array(prova.length).fill(-1);
+  flags = new Array(prova.length).fill(false);
+}
+
+/* ===== TELAS ===== */
+function show(id){ ["start","exam","result"].forEach(x=>$(x).classList.toggle("hidden",x!==id)); window.scrollTo(0,0); }
+
+function iniciar(){
+  montarProva(); cur=0; finished=false;
+  startAt=Date.now(); endAt=startAt+TOTAL_SEC*1000;
+  $("timer").classList.remove("hidden","low");
+  show("exam"); buildGrids(); render(); atualizaTimer();
+  clearInterval(tick); tick=setInterval(atualizaTimer,500);
+  window.onbeforeunload = e => { if(!finished){ e.preventDefault(); e.returnValue=""; } };
+}
+
+function fmt(s){ const h=Math.floor(s/3600), m=Math.floor(s%3600/60), x=s%60; return h+":"+String(m).padStart(2,"0")+":"+String(x).padStart(2,"0"); }
+function atualizaTimer(){
+  const rest=Math.max(0,Math.round((endAt-Date.now())/1000));
+  $("timer").textContent=fmt(rest);
+  $("timer").classList.toggle("low",rest<=600);
+  if(rest<=0){ clearInterval(tick); alert("O tempo acabou! A prova será finalizada."); finalizar(true); }
+}
+
+function buildGrids(){
+  [0,1,2].forEach(s=>{
+    const g=$("g"+s); g.innerHTML="";
+    prova.forEach((q,i)=>{ if(q.s!==s) return;
+      const b=document.createElement("button"); b.textContent=i+1; b.dataset.i=i;
+      b.onclick=()=>{cur=i;render();}; g.appendChild(b); });
+  });
+}
+function pintaGrids(){
+  document.querySelectorAll(".grid button").forEach(b=>{
+    const i=+b.dataset.i;
+    b.className="";
+    if(resp[i]>=0) b.classList.add("done");
+    if(flags[i]) b.classList.add("flag");
+    if(i===cur) b.classList.add("cur");
+  });
+  const n=resp.filter(x=>x>=0).length;
+  $("qAnswered").textContent=n+" de "+prova.length+" respondidas";
+}
+
+function render(){
+  const q=prova[cur];
+  $("qBloco").textContent=BLOCOS[q.s];
+  $("qNum").textContent=cur+1;
+  const t=$("qTexto"); if(q.t){ t.innerHTML=q.t; t.classList.remove("hidden"); } else t.classList.add("hidden");
+  $("qEnun").textContent=q.q;
+  const box=$("qAlts"); box.innerHTML="";
+  q.alts.forEach((a,i)=>{
+    const b=document.createElement("button"); b.className="alt"+(resp[cur]===i?" sel":"");
+    b.innerHTML='<span class="l">'+LETRAS[i]+'</span><span></span>'; b.lastChild.textContent=a;
+    b.onclick=()=>{ resp[cur]=i; render(); }; box.appendChild(b);
+  });
+  $("btnPrev").disabled=cur===0;
+  $("btnNext").disabled=cur===prova.length-1;
+  $("btnFlag").textContent=flags[cur]?"⚑ Desmarcar revisão":"⚑ Marcar para revisar";
+  pintaGrids();
+}
+
+function finalizar(forcado){
+  if(!forcado){
+    const br=resp.filter(x=>x<0).length, fl=flags.filter(Boolean).length;
+    let msg="Deseja finalizar o simulado?";
+    if(br) msg+="\n\nVocê ainda tem "+br+" questão(ões) em branco.";
+    if(fl) msg+="\nHá "+fl+" questão(ões) marcada(s) para revisar.";
+    if(!confirm(msg)) return;
+  }
+  finished=true; clearInterval(tick); window.onbeforeunload=null;
+  $("timer").classList.add("hidden");
+  mostrarResultado(Math.min(Date.now(),endAt)-startAt);
+}
+
+/* ===== RESULTADO ===== */
+function mostrarResultado(ms){
+  const acertos=[0,0,0], total=[0,0,0]; let ac=0;
+  prova.forEach((q,i)=>{ total[q.s]++; if(resp[i]===q.correta){acertos[q.s]++;ac++;} });
+  const pct=Math.round(ac/prova.length*100);
+  let h='<div class="box"><div class="n">'+ac+'/'+prova.length+'</div><div class="s">Acertos ('+pct+'%) · média final '+pct+'</div></div>';
+  [0,1,2].forEach(s=>{ h+='<div class="box"><div class="n">'+Math.round(acertos[s]/total[s]*100)+'</div><div class="s">'+BLOCOS[s]+' ('+acertos[s]+'/'+total[s]+')</div></div>'; });
+  $("scoreBoxes").innerHTML=h;
+  const min=Math.round(ms/60000);
+  $("timeUsed").textContent="Tempo usado: "+Math.floor(min/60)+"h"+String(min%60).padStart(2,"0")+"min de 2h45min. Respondidas: "+resp.filter(x=>x>=0).length+" · Em branco: "+resp.filter(x=>x<0).length+".";
+
+  const cnt=[0,0,0,0,0]; prova.forEach(q=>cnt[q.correta]++);
+  $("dist").innerHTML=LETRAS.map((l,i)=>"<span>"+l+": "+cnt[i]+"</span>").join("");
+
+  // gabarito em 3 colunas (por bloco)
+  let g="";
+  [0,1,2].forEach(s=>{
+    g+='<div><table class="gab"><tr><th colspan="4" style="text-align:left">'+BLOCOS[s]+'</th></tr><tr><th>Nº</th><th>Gabarito</th><th>Sua resp.</th><th></th></tr>';
+    prova.forEach((q,i)=>{ if(q.s!==s) return;
+      const r=resp[i], ok=r===q.correta, bl=r<0;
+      g+='<tr><td>'+(i+1)+'</td><td><b>'+LETRAS[q.correta]+'</b></td><td>'+(bl?"–":LETRAS[r])+'</td><td class="'+(bl?"bl":ok?"ok":"no")+'">'+(bl?"–":ok?"✓":"✗")+'</td></tr>'; });
+    g+='</table></div>';
+  });
+  $("gabCols").innerHTML=g;
+
+  // correção comentada
+  let r="";
+  prova.forEach((q,i)=>{
+    const rr=resp[i], ok=rr===q.correta, bl=rr<0;
+    r+='<div class="item" data-s="'+q.s+'" data-st="'+(bl?"bl":ok?"ok":"no")+'">'+
+      '<div class="qhead"><span><span class="tag">'+BLOCOS[q.s]+'</span> · Questão '+(i+1)+'</span><span>'+(bl?"Em branco":ok?"✓ Acertou":"✗ Errou")+'</span></div>'+
+      (q.t?'<div class="texto">'+q.t+'</div>':'')+
+      '<p class="enun">'+esc(q.q)+'</p>'+
+      q.alts.map((a,k)=>'<div class="alt'+(k===q.correta?' right':(k===rr?' wrong':''))+'"><span class="l">'+LETRAS[k]+'</span><span>'+esc(a)+'</span></div>').join("")+
+      '<div class="expl"><b>Resposta: '+LETRAS[q.correta]+'.</b> '+esc(q.e)+'</div></div>';
+  });
+  $("reviewList").innerHTML=r;
+  aplicaFiltro("all");
+  show("result");
+}
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function aplicaFiltro(f){
+  document.querySelectorAll(".filters .btn").forEach(b=>b.classList.toggle("on",b.dataset.f===f));
+  document.querySelectorAll("#reviewList .item").forEach(it=>{
+    let vis=true;
+    if(f==="no") vis=it.dataset.st==="no";
+    else if(f==="bl") vis=it.dataset.st==="bl";
+    else if(f[0]==="s") vis=it.dataset.s===f[1];
+    it.classList.toggle("hidden",!vis);
+  });
+}
+
+/* ===== EVENTOS ===== */
+$("btnStart").onclick=iniciar;
+$("btnPrev").onclick=()=>{ if(cur>0){cur--;render();} };
+$("btnNext").onclick=()=>{ if(cur<prova.length-1){cur++;render();} };
+$("btnFlag").onclick=()=>{ flags[cur]=!flags[cur]; render(); };
+$("btnClear").onclick=()=>{ resp[cur]=-1; render(); };
+$("btnFinish").onclick=()=>finalizar(false);
+$("btnAgain").onclick=()=>{ show("start"); };
+document.querySelectorAll(".filters .btn").forEach(b=>b.onclick=()=>aplicaFiltro(b.dataset.f));
+document.addEventListener("keydown",e=>{
+  if($("exam").classList.contains("hidden")) return;
+  const k=e.key.toLowerCase();
+  if(["a","b","c","d","e"].includes(k)){ resp[cur]="abcde".indexOf(k); render(); }
+  else if(e.key==="ArrowRight" && cur<prova.length-1){ cur++; render(); }
+  else if(e.key==="ArrowLeft" && cur>0){ cur--; render(); }
+});
+</script>
+</body>
+</html>
