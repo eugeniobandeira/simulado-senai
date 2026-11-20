@@ -99,6 +99,21 @@ table.gab .l{text-align:left}
 .feedback .hint{font-weight:400;margin-left:6px}
 .grid button.ok{background:var(--okbg);border-color:var(--ok)}
 .grid button.no{background:var(--badbg);border-color:var(--bad)}
+/* treino com aula */
+details.aula{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:0 0 14px}
+details.aula summary{cursor:pointer;font-weight:700;color:var(--brand)}
+details.aula h4{margin:14px 0 4px;font-size:15px}
+details.aula p,details.aula li{font-size:15px}
+details.aula table{border-collapse:collapse;margin:8px 0;font-size:14px;display:block;overflow-x:auto;max-width:100%}
+details.aula td,details.aula th{border:1px solid var(--line);padding:4px 8px;text-align:left;vertical-align:top}
+details.aula th{background:var(--card)}
+.como{background:var(--warnbg);border-left:4px solid var(--warn);border-radius:8px;padding:10px 14px;margin:0 0 12px;font-size:15px}
+.como b{color:var(--warn)}
+svg.fig{display:block;width:100%;max-width:420px;height:auto;margin:6px auto 12px;color:var(--ink)}
+.glos{background:var(--sel);border-radius:8px;padding:10px 14px;margin-top:10px;font-size:15px}
+.glos dl{margin:6px 0 0;display:grid;grid-template-columns:max-content 1fr;gap:4px 12px}
+.glos dt{font-weight:700}.glos dd{margin:0}
+#aulaCard select{max-width:100%}
 </style>
 </head>
 <body>
@@ -149,7 +164,7 @@ table.gab .l{text-align:left}
     <div class="modes">
       <div class="mode"><b>Prova 1</b><p>Versão original, com 60 questões.</p><button class="btn" data-modo="1">Iniciar Prova 1</button></div>
       <div class="mode"><b>Prova 2</b><p>Mesmos 60 tópicos da Prova 1, com questões novas e outra forma de cobrar (casos práticos, “assinale a incorreta”, contas no sentido inverso).</p><button class="btn" data-modo="2">Iniciar Prova 2</button></div>
-      <div class="mode"><b>Modo treino</b><p>Correção na hora: ao marcar, mostra a alternativa certa, o porquê e por que cada uma das outras está errada. Sem cronômetro.</p>
+      <div class="mode"><b>Treino com as questões das provas</b><p>Correção na hora: ao marcar, mostra a alternativa certa, o porquê e por que cada uma das outras está errada. Sem cronômetro.</p>
         <select id="selTreino" aria-label="Questões do treino" class="btn sec" style="text-align:left">
           <option value="T">Só meus tópicos fracos (lacunas)</option>
           <option value="T1">Prova 1 (60 questões)</option>
@@ -159,6 +174,22 @@ table.gab .l{text-align:left}
         <p id="treinoInfo" class="hint"></p>
         <button class="btn" id="btnTreino">Iniciar treino</button></div>
     </div>
+  </div>
+
+  <div class="card" id="aulaCard">
+    <h2>Modo treino com aula</h2>
+    <p>Questões mais fáceis que as da prova, sobre <b>todo o conteúdo do Programa</b>. Cada questão vem com o <b>passo a passo de como resolver</b>, uma <b>aula do tema</b> para entender a matéria, a resolução comentada e, nas questões de vocabulário, o <b>significado de todas as palavras</b>. Sem cronômetro.</p>
+    <div class="row">
+      <select id="aDisc" aria-label="Disciplina do treino" class="btn sec" style="text-align:left">
+        <option value="all">Todas as disciplinas</option>
+        <option value="0">Língua Portuguesa</option>
+        <option value="1">Matemática</option>
+        <option value="2">Ciências</option>
+      </select>
+      <select id="aTemaSel" aria-label="Tema do treino" class="btn sec" style="text-align:left"></select>
+      <button class="btn" id="btnAula">Começar treino</button>
+    </div>
+    <p class="hint" id="aResumo"></p>
   </div>
 
   <div class="card" id="histCard">
@@ -216,6 +247,28 @@ table.gab .l{text-align:left}
 </section>
 
 <!-- RESULTADO -->
+<section id="aula" class="hidden">
+  <div class="card">
+    <div class="qhead"><span><span class="tag" id="aBloco"></span> · <b id="aNome"></b></span><span id="aPlacar"></span></div>
+    <details class="aula" id="aAula"><summary>📖 Aula do tema: entenda o conteúdo (toque para abrir ou fechar)</summary><div id="aAulaBody"></div></details>
+    <div id="aTexto" class="texto hidden"></div>
+    <div id="aFig" class="hidden"></div>
+    <p class="enun" id="aEnun"></p>
+    <div class="como"><b>💡 Como resolver:</b> <span id="aComo"></span></div>
+    <div id="aAlts"></div>
+    <div id="aDepois" class="hidden">
+      <div class="expl" id="aResol"></div>
+      <div id="aGlos"></div>
+    </div>
+    <div class="nav">
+      <button class="btn sec" id="aSair">← Voltar ao início</button>
+      <button class="btn sec" id="aTrocar">🎲 Sortear outro tema</button>
+      <button class="btn" id="aProx">Próxima questão →</button>
+    </div>
+    <p class="hint">Atalhos: teclas A–E respondem; Enter vai para a próxima.</p>
+  </div>
+</section>
+
 <section id="result" class="hidden">
   <div class="card">
     <h2 id="resTitle">Resultado</h2>
@@ -917,6 +970,11 @@ const X2 = [
 ["A translação dura um ano e, com a inclinação do eixo, explica as estações.","As fases da Lua não têm relação com o dia e a noite.","A distância entre Terra e Sol varia pouco e não explica o dia e a noite.","O movimento da Lua explica as fases e os eclipses."]
 ];
 BANK.forEach((q,i)=>q.x=X1[i]);
+/* Dicionário das questões de vocabulário (parônimos e sinônimos): significado de cada palavra */
+BANK[17].g=[["absolver","declarar inocente, perdoar"],["absorver","sugar, puxar para dentro"],["eminente","ilustre, importante"],["iminente","prestes a acontecer"],["descrição","ato de descrever"],["discrição","reserva, qualidade de quem é discreto"]];
+BANK[18].g=[["prolixo","que fala ou escreve demais, que se alonga"],["conciso","que diz o essencial em poucas palavras"],["extenso","longo, comprido"],["detalhado","cheio de detalhes"],["confuso","pouco claro, difícil de entender"],["demorado","que leva muito tempo"]];
+BANK2[17].g=[["infringir","desrespeitar uma regra ou lei"],["infligir","aplicar pena ou castigo"],["flagrante","percebido no momento em que acontece"],["fragrante","perfumado"],["inflingir","não existe na língua portuguesa"]];
+BANK2[18].g=[["taxativo","firme, que não deixa dúvida"],["categórico","firme, definitivo, que não admite dúvida"],["hesitante","que hesita, que tem dúvida"],["bem-humorado","que está de bom humor"],["cobrador","quem cobra (dinheiro, taxas)"],["tolerante","que aceita, que admite exceções"]];
 BANK2.forEach((q,i)=>q.x=X2[i]);
 
 const VERSOES = {1:{nome:"Prova 1",bank:BANK},2:{nome:"Prova 2",bank:BANK2}};
@@ -948,7 +1006,7 @@ function bar(p){ return '<div class="bar"><i class="p'+nivel(p)+'" style="width:
 function qById(id){ const [v,i]=String(id).split(":"); return VERSOES[v] && VERSOES[v].bank[+i]; }
 function materializa(it){
   const q=qById(it.id); const base=[q.c].concat(q.w);
-  return {id:it.id,s:q.s,k:q.k,t:q.t||"",q:q.q,alts:it.p.map(j=>base[j]),xs:it.p.map(j=>j?q.x[j-1]:""),correta:it.p.indexOf(0),e:q.e};
+  return {id:it.id,s:q.s,k:q.k,t:q.t||"",q:q.q,alts:it.p.map(j=>base[j]),xs:it.p.map(j=>j?q.x[j-1]:""),correta:it.p.indexOf(0),e:q.e,g:q.g};
 }
 /* Alternativas já corrigidas: correta em verde com o porquê, marcada errada em vermelho,
    e o motivo de cada errada logo abaixo dela */
@@ -961,6 +1019,9 @@ function altsCorrigidas(q,rr){
     const why=ok?'<b>✓ Resposta certa.</b> '+esc(q.e):'<b>'+rotulo+(k===rr?' (sua resposta)':'')+'.</b> '+esc(q.xs[k]);
     return '<div class="alt'+cls+'"><span class="l">'+LETRAS[k]+'</span><span>'+esc(a)+'<span class="why">'+why+'</span></span></div>';
   }).join("");
+}
+function renderGlossario(g){
+  return '<div class="glos"><b>📚 Dicionário: significado das palavras</b><dl>'+g.map(([p,s])=>'<dt>'+esc(p)+'</dt><dd>'+esc(s)+'</dd>').join("")+'</dl></div>';
 }
 function ordemCom(pos){ const w=shuffle([1,2,3,4]); w.splice(pos,0,0); return w; }
 
@@ -1144,7 +1205,7 @@ function atualizaTimer(){
 }
 
 /* ===== TELAS ===== */
-function show(id){ ["start","exam","result"].forEach(x=>$(x).classList.toggle("hidden",x!==id)); window.scrollTo(0,0); }
+function show(id){ ["start","exam","result","aula"].forEach(x=>$(x).classList.toggle("hidden",x!==id)); window.scrollTo(0,0); }
 
 function buildGrids(){
   [0,1,2].forEach(s=>{
@@ -1185,7 +1246,7 @@ function render(){
   box.classList.toggle("review",sess.treino && rr>=0);
   if(sess.treino && rr>=0){
     const ok=rr===q.correta;
-    box.innerHTML='<div class="feedback '+(ok?"ok":"no")+'">'+(ok?"✓ Você acertou!":"✗ Você marcou "+LETRAS[rr]+". A correta é "+LETRAS[q.correta]+".")+' <span class="hint">Tópico: '+esc(q.k)+'</span></div>'+altsCorrigidas(q,rr);
+    box.innerHTML='<div class="feedback '+(ok?"ok":"no")+'">'+(ok?"✓ Você acertou!":"✗ Você marcou "+LETRAS[rr]+". A correta é "+LETRAS[q.correta]+".")+' <span class="hint">Tópico: '+esc(q.k)+'</span></div>'+altsCorrigidas(q,rr)+(q.g?renderGlossario(q.g):"");
   } else {
     box.innerHTML="";
     q.alts.forEach((a,i)=>{
@@ -1260,7 +1321,7 @@ function mostrarResultado(rec){
       '<div class="qhead"><span><span class="tag">'+BLOCOS[q.s]+'</span> · Questão '+(i+1)+' · '+esc(q.k)+'</span><span>'+(bl?"Em branco":ok?"✓ Acertou":"✗ Errou (marcou "+LETRAS[rr]+")")+'</span></div>'+
       (q.t?'<div class="texto">'+q.t+'</div>':'')+
       '<p class="enun">'+esc(q.q)+'</p>'+
-      altsCorrigidas(q,rr)+'</div>';
+      altsCorrigidas(q,rr)+(q.g?renderGlossario(q.g):"")+'</div>';
   });
   $("reviewList").innerHTML=r;
   aplicaFiltro(z.a<z.n?"no":"all");
@@ -1329,5 +1390,10 @@ document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==
 
 renderInicio();
 </script>
+<script src="treino/base.js"></script>
+<script src="treino/port.js"></script>
+<script src="treino/mat.js"></script>
+<script src="treino/cien.js"></script>
+<script src="treino/app.js"></script>
 </body>
 </html>
